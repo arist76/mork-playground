@@ -6,6 +6,7 @@ import { CommandCard } from "@/components/command-card"
 import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { clearData } from "@/lib/mork-api"
 
 export function ClearCommand() {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,18 +16,25 @@ export function ClearCommand() {
   const handleClear = async () => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const mockResult = { status: "success", message: "All data cleared", count: 42 }
-      setResult(mockResult)
-      toast({
-        title: "Success",
-        description: "All data has been cleared from the space",
-      })
+      const response = await clearData()
+      setResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Success",
+          description: response.message || "All data has been cleared from the space",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to clear data",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to clear data",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -53,9 +61,7 @@ export function ClearCommand() {
         <p className="text-sm text-muted-foreground">This will permanently delete all data in the space</p>
       </div>
 
-      {result && (
-        <OutputViewer title="Clear Result" data={result} status={result.status === "success" ? "success" : "error"} />
-      )}
+      {result && <OutputViewer title="Clear Result" data={result} status="success" />}
     </CommandCard>
   )
 }

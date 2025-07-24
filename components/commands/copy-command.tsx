@@ -7,6 +7,7 @@ import { CodeEditor } from "@/components/code-editor"
 import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { copyData } from "@/lib/mork-api"
 
 export function CopyCommand() {
   const [pattern, setPattern] = useState("(test (data $v) _)")
@@ -27,24 +28,25 @@ export function CopyCommand() {
 
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      const mockResult = {
-        status: "success",
-        copied: 15,
-        pattern: pattern,
-        template: template,
-        results: ["(result value1)", "(result value2)", "(result value3)"],
+      const response = await copyData(pattern, template)
+      setResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Success",
+          description: response.message,
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to copy data",
+          variant: "destructive",
+        })
       }
-      setResult(mockResult)
-      toast({
-        title: "Success",
-        description: `Copied ${mockResult.copied} items`,
-      })
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to copy data",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -73,9 +75,7 @@ export function CopyCommand() {
         )}
       </Button>
 
-      {result && (
-        <OutputViewer title="Copy Results" data={result} status={result.status === "success" ? "success" : "error"} />
-      )}
+      {result && <OutputViewer title="Copy Results" data={result} status="success" />}
     </CommandCard>
   )
 }

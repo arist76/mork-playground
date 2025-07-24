@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, File } from "lucide-react"
+import { uploadFile } from "@/lib/mork-api"
 
 export function UploadCommand() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -37,24 +38,28 @@ export function UploadCommand() {
 
     setIsLoading(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      const mockResult = {
-        status: "success",
-        filename: selectedFile.name,
-        size: `${(selectedFile.size / 1024).toFixed(2)} KB`,
-        type: selectedFile.type,
-        uploaded_at: new Date().toISOString(),
-        message: `File ${selectedFile.name} uploaded successfully`,
+      const formData = new FormData()
+      formData.append("file", selectedFile)
+
+      const response = await uploadFile(formData)
+      setResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Upload Complete",
+          description: response.message,
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Failed to upload file",
+          variant: "destructive",
+        })
       }
-      setResult(mockResult)
-      toast({
-        title: "Upload Complete",
-        description: `File ${selectedFile.name} uploaded successfully`,
-      })
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to upload file",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -112,9 +117,7 @@ export function UploadCommand() {
         )}
       </Button>
 
-      {result && (
-        <OutputViewer title="Upload Result" data={result} status={result.status === "success" ? "success" : "error"} />
-      )}
+      {result && <OutputViewer title="Upload Result" data={result} status="success" />}
     </CommandCard>
   )
 }

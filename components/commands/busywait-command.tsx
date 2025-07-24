@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { executeBusywait } from "@/lib/mork-api"
 
 export function BusywaitCommand() {
   const [millis, setMillis] = useState([1000])
@@ -20,23 +21,25 @@ export function BusywaitCommand() {
   const handleBusywait = async () => {
     setIsLoading(true)
     try {
-      // Simulate the actual busywait duration
-      await new Promise((resolve) => setTimeout(resolve, millis[0]))
-      const mockResult = {
-        status: "success",
-        duration: millis[0],
-        locked: lockExpr,
-        message: `Busywait completed after ${millis[0]}ms`,
+      const response = await executeBusywait(millis[0], lockExpr)
+      setResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Success",
+          description: response.message,
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: response.message || "Busywait operation failed",
+          variant: "destructive",
+        })
       }
-      setResult(mockResult)
-      toast({
-        title: "Success",
-        description: `Busywait completed after ${millis[0]}ms`,
-      })
     } catch (error) {
       toast({
         title: "Error",
-        description: "Busywait operation failed",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -82,13 +85,7 @@ export function BusywaitCommand() {
         )}
       </Button>
 
-      {result && (
-        <OutputViewer
-          title="Busywait Result"
-          data={result}
-          status={result.status === "success" ? "success" : "error"}
-        />
-      )}
+      {result && <OutputViewer title="Busywait Result" data={result} status="success" />}
     </CommandCard>
   )
 }

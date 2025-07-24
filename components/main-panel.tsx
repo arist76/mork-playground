@@ -1,6 +1,5 @@
 "use client"
 
-import { SidebarInset } from "@/components/ui/sidebar"
 import { ClearCommand } from "@/components/commands/clear-command"
 import { CopyCommand } from "@/components/commands/copy-command"
 import { CountCommand } from "@/components/commands/count-command"
@@ -56,9 +55,5 @@ export function MainPanel({ selectedCommand }: MainPanelProps) {
     }
   }
 
-  return (
-    <SidebarInset className="flex-1">
-      <div className="p-6">{renderCommand()}</div>
-    </SidebarInset>
-  )
+  return <div className="p-6 w-full">{renderCommand()}</div>
 }

@@ -10,6 +10,7 @@ import { OutputViewer } from "@/components/output-viewer"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Database, TestTube } from "lucide-react"
+import { testNeo4jConnection, loadNeo4jData } from "@/lib/mork-api"
 
 export function Neo4jCommand() {
   const [uri, setUri] = useState("bolt://localhost:7687")
@@ -34,26 +35,25 @@ export function Neo4jCommand() {
 
     setIsConnecting(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      const mockResult = {
-        status: "success",
-        uri: uri,
-        user: user,
-        connected_at: new Date().toISOString(),
-        neo4j_version: "5.15.0",
-        database: "neo4j",
-        message: "Successfully connected to Neo4j database",
+      const response = await testNeo4jConnection(uri, user, password)
+      setConnectionResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Connection Successful",
+          description: response.message,
+        })
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: response.message || "Failed to connect to Neo4j database",
+          variant: "destructive",
+        })
       }
-      setConnectionResult(mockResult)
-      toast({
-        title: "Connection Successful",
-        description: "Successfully connected to Neo4j database",
-      })
     } catch (error) {
-      setConnectionResult({ status: "error", message: "Failed to connect to Neo4j" })
       toast({
-        title: "Connection Failed",
-        description: "Failed to connect to Neo4j database",
+        title: "Error",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -62,7 +62,7 @@ export function Neo4jCommand() {
   }
 
   const handleLoadData = async () => {
-    if (!connectionResult || connectionResult.status !== "success") {
+    if (!connectionResult) {
       toast({
         title: "Connection Required",
         description: "Please establish a connection first",
@@ -73,26 +73,25 @@ export function Neo4jCommand() {
 
     setIsLoading(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      const mockResult = {
-        status: "success",
-        load_type: loadType,
-        nodes_created: 156,
-        relationships_created: 234,
-        properties_set: 890,
-        execution_time: "2.34s",
-        message: `Successfully loaded data as ${loadType}`,
+      const response = await loadNeo4jData(loadType)
+      setLoadResult(response.data)
+
+      if (response.status === "success") {
+        toast({
+          title: "Data Loaded",
+          description: response.message,
+        })
+      } else {
+        toast({
+          title: "Load Failed",
+          description: response.message || "Failed to load data into Neo4j",
+          variant: "destructive",
+        })
       }
-      setLoadResult(mockResult)
-      toast({
-        title: "Data Loaded",
-        description: `Successfully loaded data as ${loadType}`,
-      })
     } catch (error) {
-      setLoadResult({ status: "error", message: "Failed to load data" })
       toast({
-        title: "Load Failed",
-        description: "Failed to load data into Neo4j",
+        title: "Error",
+        description: "An unexpected error occurred",
         variant: "destructive",
       })
     } finally {
@@ -161,13 +160,7 @@ export function Neo4jCommand() {
           </Button>
         </div>
 
-        {connectionResult && (
-          <OutputViewer
-            title="Connection Result"
-            data={connectionResult}
-            status={connectionResult.status === "success" ? "success" : "error"}
-          />
-        )}
+        {connectionResult && <OutputViewer title="Connection Result" data={connectionResult} status="success" />}
 
         <Separator />
 
@@ -192,11 +185,7 @@ export function Neo4jCommand() {
             </p>
           </div>
 
-          <Button
-            onClick={handleLoadData}
-            disabled={isConnecting || isLoading || !connectionResult || connectionResult.status !== "success"}
-            className="w-32"
-          >
+          <Button onClick={handleLoadData} disabled={isConnecting || isLoading || !connectionResult} className="w-32">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -211,13 +200,7 @@ export function Neo4jCommand() {
           </Button>
         </div>
 
-        {loadResult && (
-          <OutputViewer
-            title="Load Result"
-            data={loadResult}
-            status={loadResult.status === "success" ? "success" : "error"}
-          />
-        )}
+        {loadResult && <OutputViewer title="Load Result" data={loadResult} status="success" />}
       </div>
     </CommandCard>
   )
