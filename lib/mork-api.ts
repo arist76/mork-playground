@@ -3,7 +3,7 @@
 // Server-side API functions for MORK server communication
 const MORK_SERVER_URL = process.env.MORK_SERVER_URL || "http://localhost:8000"
 
-interface ApiResponse<T = any> {
+export interface ApiResponse<T = any> {
 	status: "success" | "error"
 	data?: T
 	message?: string
@@ -95,11 +95,15 @@ export async function countItems(pattern: string): Promise<ApiResponse> {
 	}
 }
 
-export async function exportData(uri: string, format: string): Promise<ApiResponse> {
+export async function exportData(pattern: string, template: string, uri: string | undefined, format: string | undefined): Promise<ApiResponse> {
 	try {
-		const response = await fetch(`${MORK_SERVER_URL}/export`, {
+		const params = new URLSearchParams()
+		uri && params.set("uri", uri)
+		format && params.set("format", format)
+
+		const response = await fetch(`${MORK_SERVER_URL}/export/${params.toString()}`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "text/plain" },
 			body: JSON.stringify({ uri, format }),
 		})
 
@@ -107,16 +111,11 @@ export async function exportData(uri: string, format: string): Promise<ApiRespon
 			throw new Error(`HTTP error! status: ${response.status}`)
 		}
 
-		const data = await response.json()
+		const data = await response.text()
 		return {
 			status: "success",
-			data: {
-				exported: data.count || 156,
-				uri,
-				format,
-				size: data.size || "2.4 MB",
-			},
-			message: `Data exported successfully to ${uri}`,
+			data,
+			message: `Data exported successfully to ${uri || "memory"}`,
 		}
 	} catch (error) {
 		return {
@@ -200,17 +199,16 @@ export async function transformData(sExpr: string): Promise<ApiResponse> {
 		})
 
 		if (!response.ok) {
-			console.log("Transform error: ", await response.text())
-			throw new Error(`HTTP error! status: ${response.status}`)
+			const err_msg = await response.text()
+			console.log("Transform error: ", err_msg)
+			throw new Error(`Status (${response.status}): ${err_msg}`)
 		}
 
 		const data = await response.text()
 		return {
 			status: "success",
-			data: {
-				result: data || "$",
-			},
-			message: `Transformed`,
+			data: data || "$",
+			message: `A thread has started executing the transformation task`,
 		}
 	} catch (error) {
 		return {
@@ -347,38 +345,22 @@ export async function stopServer(waitForIdle: boolean): Promise<ApiResponse> {
 	}
 }
 
-export async function getStatus(path: string): Promise<ApiResponse> {
+export async function isPathClear(path: string): Promise<boolean> {
 	try {
-		const response = await fetch(`${MORK_SERVER_URL}${path}`, {
+		const response = await fetch(`${MORK_SERVER_URL}/status/${path}`, {
 			method: "GET",
 			headers: { "Content-Type": "application/json" },
 		})
 
 		if (!response.ok) {
+			console.error("isPathClear error: ", await response.text())
 			throw new Error(`HTTP error! status: ${response.status}`)
 		}
 
 		const data = await response.json()
-		return {
-			status: "success",
-			data: {
-				path,
-				server_status: data.server_status || "running",
-				uptime: data.uptime || "2h 34m 12s",
-				memory_usage: data.memory_usage || "45%",
-				cpu_usage: data.cpu_usage || "23%",
-				active_threads: data.active_threads || 3,
-				queue_size: data.queue_size || 12,
-				last_activity: data.last_activity || new Date().toISOString(),
-				version: data.version || "1.2.3",
-			},
-			message: "Server status retrieved successfully",
-		}
+		return data.status === "pathClear"
 	} catch (error) {
-		return {
-			status: "error",
-			message: error instanceof Error ? error.message : "Failed to retrieve status",
-		}
+		throw error
 	}
 }
 
