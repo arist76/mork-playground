@@ -11,7 +11,7 @@ import { CodeEditor } from "../code-editor"
 
 export function ClearCommand() {
 	const [isLoading, setIsLoading] = useState(false)
-	const [sExpr, setSExpr] = useState("$x  ; becareful, this clears everything")
+	const [sExpr, setSExpr] = useState("$x")
 	const [result, setResult] = useState<any>(null)
 	const { toast } = useToast()
 
@@ -64,10 +64,10 @@ export function ClearCommand() {
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							Clearing...
 						</>
-					) 
-					: (
-						"Clear"
-					)}
+					)
+						: (
+							"Clear"
+						)}
 				</Button>
 				<p className="text-sm text-muted-foreground">This will permanently delete all data in the provided sub space</p>
 			</div>
