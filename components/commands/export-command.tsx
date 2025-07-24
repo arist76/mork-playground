@@ -33,7 +33,7 @@ export function ExportCommand() {
 
 			toast({
 				title: "Export Complete 📂",
-				description: `Exported to ${_uri || ""}`,
+				description: `Exported to ${_uri || "memory"}`,
 			})
 		} catch (error) {
 			toast({

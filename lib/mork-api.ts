@@ -10,22 +10,20 @@ export interface ApiResponse<T = any> {
 }
 
 // Data Management APIs
-export async function clearData(): Promise<ApiResponse> {
+export async function clearData(subExpr: string): Promise<ApiResponse> {
 	try {
-		const response = await fetch(`${MORK_SERVER_URL}/clear`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
+		const response = await fetch(`${MORK_SERVER_URL}/clear/${subExpr}`, {
+			method: "GET",
+			headers: { "Content-Type": "text/plain" },
 		})
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`)
-		}
+		sanitizeResponse(response)
 
-		const data = await response.json()
+		const data = await response.text()
 		return {
 			status: "success",
-			data: { ...data, count: 42 },
-			message: "All data cleared successfully",
+			data: data,
+			message: `Data under sub expression ${subExpr} cleared successfully`,
 		}
 	} catch (error) {
 		return {
