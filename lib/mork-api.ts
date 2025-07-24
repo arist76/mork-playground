@@ -125,28 +125,20 @@ export async function exportData(pattern: string, template: string, uri: string 
 	}
 }
 
-export async function importData(uri: string, format: string): Promise<ApiResponse> {
+export async function importData(pattern: string, template: string, uri: string): Promise<ApiResponse> {
 	try {
-		const response = await fetch(`${MORK_SERVER_URL}/import`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ uri, format }),
+		const response = await fetch(`${MORK_SERVER_URL}/import/${pattern}/${template}?uri=${uri}`, {
+			method: "GET",
+			headers: { "Content-Type": "text/plain" },
 		})
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`)
-		}
+		await sanitizeResponse(response)
 
-		const data = await response.json()
+		const data = await response.text()
 		return {
 			status: "success",
-			data: {
-				imported: data.count || 89,
-				uri,
-				format,
-				size: data.size || "1.8 MB",
-			},
-			message: `Data imported successfully from ${uri}`,
+			data: data,
+			message: `Import request for ${uri} has succesfully been sent`,
 		}
 	} catch (error) {
 		return {
