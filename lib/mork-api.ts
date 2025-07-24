@@ -1,7 +1,7 @@
 "use server"
 
 // Server-side API functions for MORK server communication
-const MORK_SERVER_URL = process.env.MORK_SERVER_URL || "http://localhost:8000"
+const MORK_SERVER_URL = process.env.MORK_SERVER_URL || "http://127.0.0.1:8000"
 
 export interface ApiResponse<T = any> {
 	status: "success" | "error"
@@ -95,26 +95,26 @@ export async function countItems(pattern: string): Promise<ApiResponse> {
 	}
 }
 
+
 export async function exportData(pattern: string, template: string, uri: string | undefined, format: string | undefined): Promise<ApiResponse> {
 	try {
 		const params = new URLSearchParams()
 		uri && params.set("uri", uri)
 		format && params.set("format", format)
-
-		const response = await fetch(`${MORK_SERVER_URL}/export/${params.toString()}`, {
-			method: "POST",
+		console.log("url: ", `${MORK_SERVER_URL}/export/${pattern}/${template}?${params.toString()}`)
+		
+		const response = await fetch(`${MORK_SERVER_URL}/export/${pattern}/${template}/?${params.toString()}`, {
+			method: "GET",
 			headers: { "Content-Type": "text/plain" },
-			body: JSON.stringify({ uri, format }),
 		})
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`)
-		}
+		await sanitizeResponse(response)
 
 		const data = await response.text()
+		console.log("export data: ", data)
 		return {
 			status: "success",
-			data,
+			data: data,
 			message: `Data exported successfully to ${uri || "memory"}`,
 		}
 	} catch (error) {
@@ -183,18 +183,13 @@ export async function uploadFile(formData: FormData): Promise<ApiResponse> {
 
 export async function transformData(sExpr: string): Promise<ApiResponse> {
 	try {
-		console.log("sExpr: ", sExpr)
 		const response = await fetch(`${MORK_SERVER_URL}/transform/`, {
 			method: "POST",
 			headers: { "Content-Type": "text/plain" },
 			body: sExpr,
 		})
 
-		if (!response.ok) {
-			const err_msg = await response.text()
-			console.log("Transform error: ", err_msg)
-			throw new Error(`Status (${response.status}): ${err_msg}`)
-		}
+		await sanitizeResponse(response)
 
 		const data = await response.text()
 		return {
@@ -420,5 +415,15 @@ export async function loadNeo4jData(loadType: string): Promise<ApiResponse> {
 			status: "error",
 			message: error instanceof Error ? error.message : "Failed to load data into Neo4j",
 		}
+	}
+}
+
+
+// ================================ Helpers ================================
+
+async function sanitizeResponse(response: Response) {
+	if (!response.ok) {
+		const err_msg = await response.text()
+		throw new Error(`Status (${response.status}): ${err_msg}`)
 	}
 }
