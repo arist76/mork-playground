@@ -10,7 +10,11 @@ import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, PlayCircle } from "lucide-react"
 
-export function MettaThreadCommand() {
+interface MettaThreadCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function MettaThreadCommand({ isUnderConstruction = false }: MettaThreadCommandProps) {
   const [location, setLocation] = useState("")
   const [expression, setExpression] = useState("(exec (+ 1 2 3))")
   const [isLoading, setIsLoading] = useState(false)
@@ -65,7 +69,7 @@ export function MettaThreadCommand() {
     <CommandCard
       title="MeTTa Thread Execution"
       description="Execute MeTTa expressions in a separate thread with optional location specification."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-4">
         <div className="space-y-2">

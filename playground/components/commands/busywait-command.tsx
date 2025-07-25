@@ -11,7 +11,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { executeBusywait, getStatus } from "@/lib/mork-api"
 
-export function BusywaitCommand() {
+interface BusywaitCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function BusywaitCommand({ isUnderConstruction = false }: BusywaitCommandProps) {
   const [millis, setMillis] = useState([1000])
   const [lockExpr, setLockExpr] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -108,7 +112,7 @@ export function BusywaitCommand() {
     <CommandCard
       title="Busywait Operation"
       description="Execute a busywait operation for the specified duration with optional expression locking."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-6">
         <div className="space-y-3">

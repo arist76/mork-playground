@@ -11,7 +11,11 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Play, Square } from "lucide-react"
 
-export function StatusStreamCommand() {
+interface StatusStreamCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function StatusStreamCommand({ isUnderConstruction = false }: StatusStreamCommandProps) {
   const [path, setPath] = useState("/status")
   const [isStreaming, setIsStreaming] = useState(false)
   const [logs, setLogs] = useState<Array<{ timestamp: string; message: string; type: "info" | "error" | "success" }>>(
@@ -89,7 +93,7 @@ export function StatusStreamCommand() {
     <CommandCard
       title="Status Stream"
       description="Stream real-time status updates from the server using Server-Sent Events (SSE)."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-4">
         <div className="space-y-2">

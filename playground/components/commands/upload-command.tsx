@@ -12,7 +12,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload, File } from "lucide-react"
 import { uploadFile, isPathClear, exportData } from "@/lib/mork-api"
 
-export function UploadCommand() {
+interface UploadCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function UploadCommand({ isUnderConstruction = false }: UploadCommandProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
@@ -141,7 +145,9 @@ export function UploadCommand() {
   }
 
   return (
-    <CommandCard title="Upload File" description="Upload a file to the server for processing or storage.">
+    <CommandCard title="Upload File" description="Upload a file to the server for processing or storage."
+      {...{ isUnderConstruction }}
+    >
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="file-upload">Select File</Label>

@@ -12,7 +12,11 @@ import { Loader2, Download } from "lucide-react"
 import { exportData } from "@/lib/mork-api"
 import { CodeEditor } from "../code-editor"
 
-export function ExportCommand() {
+interface ExportCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function ExportCommand({ isUnderConstruction = false }: ExportCommandProps) {
 	const [uri, setUri] = useState("")
 	const [format, setFormat] = useState("metta")
 	const [isLoading, setIsLoading] = useState(false)
@@ -50,6 +54,7 @@ export function ExportCommand() {
 		<CommandCard
 			title="Export Data"
 			description="Export data to a file in the specified format. Supports local files and remote URLs."
+			{...{ isUnderConstruction }}
 		>
 			<div className="space-y-4">
 				<div className="space-y-4">

@@ -8,7 +8,11 @@ import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 
-export function CountCommand() {
+interface CountCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function CountCommand({ isUnderConstruction = false }: CountCommandProps) {
 	const [pattern, setPattern] = useState("(test (data $v) _)")
 	const [isLoading, setIsLoading] = useState(false)
 	const [result, setResult] = useState<any>(null)
@@ -52,7 +56,7 @@ export function CountCommand() {
 		<CommandCard
 			title="Count Items"
 			description="Count the number of items that match the specified pattern."
-			isUnderConstruction={true}
+			{...{ isUnderConstruction }}
 		>
 			<CodeEditor label="Pattern" value={pattern} onChange={setPattern} placeholder="(test (data $v) _)" rows={3} />
 

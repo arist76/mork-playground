@@ -11,7 +11,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload } from "lucide-react"
 import { importData } from "@/lib/mork-api"
 
-export function ImportCommand() {
+interface ImportCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function ImportCommand({ isUnderConstruction = false }: ImportCommandProps) {
 	const [uri, setUri] = useState("")
 	const [format, setFormat] = useState("json")
 	const [isLoading, setIsLoading] = useState(false)
@@ -55,6 +59,7 @@ export function ImportCommand() {
 		<CommandCard
 			title="Import Data"
 			description="Import data from a file in the specified format. Supports local files and remote URLs."
+			{...{ isUnderConstruction }}
 		>
 			<div className="space-y-4">
 				<div className="space-y-2">

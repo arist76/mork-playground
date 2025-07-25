@@ -9,7 +9,11 @@ import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Activity } from "lucide-react"
 
-export function StatusCommand() {
+interface StatusCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function StatusCommand({ isUnderConstruction = false }: StatusCommandProps) {
   const [path, setPath] = useState("/status")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -58,7 +62,7 @@ export function StatusCommand() {
 
   return (
     <CommandCard title="Get Status" description="Retrieve current system status information from the specified path."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-4">
         <div className="space-y-2">

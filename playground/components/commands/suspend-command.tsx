@@ -9,7 +9,11 @@ import { OutputViewer } from "@/components/output-viewer"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Pause } from "lucide-react"
 
-export function SuspendCommand() {
+interface SuspendCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function SuspendCommand({ isUnderConstruction = false }: SuspendCommandProps) {
   const [location, setLocation] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -52,7 +56,7 @@ export function SuspendCommand() {
 
   return (
     <CommandCard title="Suspend Thread" description="Suspend execution of a MeTTa thread at the specified location."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-4">
         <div className="space-y-2">

@@ -9,7 +9,11 @@ import { Loader2 } from "lucide-react"
 import { clearData, isPathClear } from "@/lib/mork-api"
 import { CodeEditor } from "../code-editor"
 
-export function ClearCommand() {
+interface ClearCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function ClearCommand({ isUnderConstruction = false }: ClearCommandProps) {
 	const [isLoading, setIsLoading] = useState(false)
 	const [sExpr, setSExpr] = useState("$x")
 	const [result, setResult] = useState<any>(null)
@@ -52,6 +56,7 @@ export function ClearCommand() {
 		<CommandCard
 			title="Clear Data"
 			description="Remove all data from the current space. This operation cannot be undone."
+			{...{ isUnderConstruction }}
 		>
 			<div className="space-y-4">
 				<CodeEditor label="Sub Expression" value={sExpr} onChange={setSExpr} placeholder="(Node Node)" rows={4} />

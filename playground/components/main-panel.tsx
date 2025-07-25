@@ -16,44 +16,44 @@ import { StatusStreamCommand } from "@/components/commands/status-stream-command
 import { Neo4jCommand } from "@/components/commands/neo4j-command"
 
 interface MainPanelProps {
-  selectedCommand: string
+	selectedCommand: string
 }
 
 export function MainPanel({ selectedCommand }: MainPanelProps) {
-  const renderCommand = () => {
-    switch (selectedCommand) {
-      case "clear":
-        return <ClearCommand />
-      case "copy":
-        return <CopyCommand />
-      case "count":
-        return <CountCommand />
-      case "export":
-        return <ExportCommand />
-      case "import":
-        return <ImportCommand />
-      case "upload":
-        return <UploadCommand />
-      case "transform":
-        return <TransformCommand />
-      case "metta-thread":
-        return <MettaThreadCommand />
-      case "suspend":
-        return <SuspendCommand />
-      case "busywait":
-        return <BusywaitCommand />
-      case "stop":
-        return <StopCommand />
-      case "status":
-        return <StatusCommand />
-      case "status-stream":
-        return <StatusStreamCommand />
-      case "neo4j":
-        return <Neo4jCommand />
-      default:
-        return <ClearCommand />
-    }
-  }
+	const renderCommand = () => {
+		switch (selectedCommand) {
+			case "clear":
+				return <ClearCommand />
+			case "copy":
+				return <CopyCommand isUnderConstruction={true} />
+			case "count":
+				return <CountCommand isUnderConstruction={true} />
+			case "export":
+				return <ExportCommand />
+			case "import":
+				return <ImportCommand />
+			case "upload":
+				return <UploadCommand isUnderConstruction={true} />
+			case "transform":
+				return <TransformCommand />
+			case "metta-thread":
+				return <MettaThreadCommand isUnderConstruction={true} />
+			case "suspend":
+				return <SuspendCommand isUnderConstruction={true} />
+			case "busywait":
+				return <BusywaitCommand isUnderConstruction={true} />
+			case "stop":
+				return <StopCommand isUnderConstruction={true} />
+			case "status":
+				return <StatusCommand isUnderConstruction={true} />
+			case "status-stream":
+				return <StatusStreamCommand isUnderConstruction={true} />
+			case "neo4j":
+				return <Neo4jCommand isUnderConstruction={true} />
+			default:
+				return <ClearCommand />
+		}
+	}
 
-  return <div className="p-6 w-full">{renderCommand()}</div>
+	return <div className="p-6 w-full">{renderCommand()}</div>
 }

@@ -9,7 +9,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { transformData, isPathClear } from "@/lib/mork-api"
 
-export function TransformCommand() {
+interface TransformCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function TransformCommand({ isUnderConstruction = false }: TransformCommandProps) {
 	const [sExpr, setSExpr] = useState("(Node Node)")
 	const [isLoading, setIsLoading] = useState(false)
 	const [isPolling, setIsPolling] = useState(false)
@@ -92,6 +96,7 @@ export function TransformCommand() {
 		<CommandCard
 			title="Transform Data"
 			description="Apply templates to matched patterns. Input S-Expression like: (transform (, (pattern)) (, (template)))"
+			{...{ isUnderConstruction }}
 		>
 			<div className="space-y-4">
 				<CodeEditor label="Patterns" value={sExpr} onChange={setSExpr} placeholder="(Node Node)" rows={4} />

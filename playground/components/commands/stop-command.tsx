@@ -20,7 +20,11 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Square, AlertTriangle } from "lucide-react"
 
-export function StopCommand() {
+interface StopCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function StopCommand({ isUnderConstruction = false }: StopCommandProps) {
   const [waitForIdle, setWaitForIdle] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -57,7 +61,7 @@ export function StopCommand() {
     <CommandCard
       title="Stop Server"
       description="Stop all server operations. This will halt all running processes and threads."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-4">
         <div className="flex items-center space-x-2">

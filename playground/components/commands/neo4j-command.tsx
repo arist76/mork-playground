@@ -12,7 +12,11 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2, Database, TestTube } from "lucide-react"
 import { testNeo4jConnection, loadNeo4jData, isPathClear, exportData } from "@/lib/mork-api"
 
-export function Neo4jCommand() {
+interface Neo4jCommandProps {
+	isUnderConstruction?: boolean
+}
+
+export function Neo4jCommand({ isUnderConstruction = false }: Neo4jCommandProps) {
   const [uri, setUri] = useState("bolt://localhost:7687")
   const [user, setUser] = useState("neo4j")
   const [password, setPassword] = useState("")
@@ -107,7 +111,7 @@ export function Neo4jCommand() {
     <CommandCard
       title="Neo4j Integration"
       description="Configure Neo4j database connection and load data in various formats."
-      isUnderConstruction={true}
+      {...{ isUnderConstruction }}
     >
       <div className="space-y-6">
         <div className="space-y-4">
