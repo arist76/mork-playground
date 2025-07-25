@@ -57,7 +57,9 @@ export function StatusCommand() {
   }
 
   return (
-    <CommandCard title="Get Status" description="Retrieve current system status information from the specified path.">
+    <CommandCard title="Get Status" description="Retrieve current system status information from the specified path."
+      isUnderConstruction={true}
+    >
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="status-path">Status Path</Label>

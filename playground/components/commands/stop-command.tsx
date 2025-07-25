@@ -57,6 +57,7 @@ export function StopCommand() {
     <CommandCard
       title="Stop Server"
       description="Stop all server operations. This will halt all running processes and threads."
+      isUnderConstruction={true}
     >
       <div className="space-y-4">
         <div className="flex items-center space-x-2">

@@ -89,6 +89,7 @@ export function StatusStreamCommand() {
     <CommandCard
       title="Status Stream"
       description="Stream real-time status updates from the server using Server-Sent Events (SSE)."
+      isUnderConstruction={true}
     >
       <div className="space-y-4">
         <div className="space-y-2">

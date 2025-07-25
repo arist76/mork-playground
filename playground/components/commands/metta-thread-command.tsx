@@ -65,6 +65,7 @@ export function MettaThreadCommand() {
     <CommandCard
       title="MeTTa Thread Execution"
       description="Execute MeTTa expressions in a separate thread with optional location specification."
+      isUnderConstruction={true}
     >
       <div className="space-y-4">
         <div className="space-y-2">

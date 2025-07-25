@@ -51,7 +51,9 @@ export function SuspendCommand() {
   }
 
   return (
-    <CommandCard title="Suspend Thread" description="Suspend execution of a MeTTa thread at the specified location.">
+    <CommandCard title="Suspend Thread" description="Suspend execution of a MeTTa thread at the specified location."
+      isUnderConstruction={true}
+    >
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="suspend-location">Thread Location</Label>

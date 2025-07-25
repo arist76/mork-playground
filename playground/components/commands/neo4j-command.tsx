@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { CommandCard } from "@/components/command-card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { OutputViewer } from "@/components/output-viewer"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Database, TestTube } from "lucide-react"
-import { testNeo4jConnection, loadNeo4jData } from "@/lib/mork-api"
+import { testNeo4jConnection, loadNeo4jData, isPathClear, exportData } from "@/lib/mork-api"
 
 export function Neo4jCommand() {
   const [uri, setUri] = useState("bolt://localhost:7687")
@@ -18,7 +18,11 @@ export function Neo4jCommand() {
   const [password, setPassword] = useState("")
   const [loadType, setLoadType] = useState("triples")
   const [isConnecting, setIsConnecting] = useState(false)
+  const [isPollingConnection, setIsPollingConnection] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isPollingLoad, setIsPollingLoad] = useState(false)
+  const connectionPollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const loadPollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [connectionResult, setConnectionResult] = useState<any>(null)
   const [loadResult, setLoadResult] = useState<any>(null)
   const { toast } = useToast()
@@ -34,13 +38,13 @@ export function Neo4jCommand() {
     }
 
     setIsConnecting(true)
+    setConnectionResult(null) // Clear previous results
     try {
       const response = await testNeo4jConnection(uri, user, password)
-      setConnectionResult(response.data)
 
       if (response.status === "success") {
         toast({
-          title: "Connection Successful",
+          title: "Connection Initiated",
           description: response.message,
         })
       } else {
@@ -72,13 +76,13 @@ export function Neo4jCommand() {
     }
 
     setIsLoading(true)
+    setLoadResult(null) // Clear previous results
     try {
       const response = await loadNeo4jData(loadType)
-      setLoadResult(response.data)
 
       if (response.status === "success") {
         toast({
-          title: "Data Loaded",
+          title: "Load Initiated",
           description: response.message,
         })
       } else {
@@ -103,6 +107,7 @@ export function Neo4jCommand() {
     <CommandCard
       title="Neo4j Integration"
       description="Configure Neo4j database connection and load data in various formats."
+      isUnderConstruction={true}
     >
       <div className="space-y-6">
         <div className="space-y-4">
@@ -115,7 +120,7 @@ export function Neo4jCommand() {
                 value={uri}
                 onChange={(e) => setUri(e.target.value)}
                 placeholder="bolt://localhost:7687"
-                disabled={isConnecting || isLoading}
+                disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad}
               />
             </div>
             <div className="space-y-2">
@@ -125,7 +130,7 @@ export function Neo4jCommand() {
                 value={user}
                 onChange={(e) => setUser(e.target.value)}
                 placeholder="neo4j"
-                disabled={isConnecting || isLoading}
+                disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad}
               />
             </div>
           </div>
@@ -137,19 +142,24 @@ export function Neo4jCommand() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              disabled={isConnecting || isLoading}
+              disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad}
             />
           </div>
 
           <Button
             onClick={handleTestConnection}
-            disabled={isConnecting || isLoading || !uri.trim() || !user.trim() || !password.trim()}
+            disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad || !uri.trim() || !user.trim() || !password.trim()}
             className="w-40"
           >
             {isConnecting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Connecting...
+              </>
+            ) : isPollingConnection ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Waiting for connection...
               </>
             ) : (
               <>
@@ -160,7 +170,7 @@ export function Neo4jCommand() {
           </Button>
         </div>
 
-        {connectionResult && <OutputViewer title="Connection Result" data={connectionResult} status="success" />}
+        {connectionResult && <OutputViewer title="Connection Result" data={connectionResult} status={connectionResult.error ? "error" : "success"} />}
 
         <Separator />
 
@@ -168,7 +178,7 @@ export function Neo4jCommand() {
           <h3 className="text-lg font-medium">Data Loading</h3>
           <div className="space-y-2">
             <Label htmlFor="load-type">Load Type</Label>
-            <Select value={loadType} onValueChange={setLoadType} disabled={isConnecting || isLoading}>
+            <Select value={loadType} onValueChange={setLoadType} disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad}>
               <SelectTrigger id="load-type">
                 <SelectValue placeholder="Select load type" />
               </SelectTrigger>
@@ -185,7 +195,7 @@ export function Neo4jCommand() {
             </p>
           </div>
 
-          <Button onClick={handleLoadData} disabled={isConnecting || isLoading || !connectionResult} className="w-32">
+          <Button onClick={handleLoadData} disabled={isConnecting || isPollingConnection || isLoading || isPollingLoad || !connectionResult} className="w-32">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -200,7 +210,7 @@ export function Neo4jCommand() {
           </Button>
         </div>
 
-        {loadResult && <OutputViewer title="Load Result" data={loadResult} status="success" />}
+        {loadResult && <OutputViewer title="Load Result" data={loadResult} status={loadResult.error ? "error" : "success"} />}
       </div>
     </CommandCard>
   )
