@@ -33,28 +33,20 @@ export async function clearData(subExpr: string): Promise<ApiResponse> {
 	}
 }
 
-export async function copyData(pattern: string, template: string): Promise<ApiResponse> {
+export async function copyData(srcExpr: string, dstExpr: string): Promise<ApiResponse> {
 	try {
-		const response = await fetch(`${MORK_SERVER_URL}/copy`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ pattern, template }),
+		const response = await fetch(`${MORK_SERVER_URL}/copy/${encodeURIComponent(srcExpr)}/${encodeURIComponent(dstExpr)}`, {
+			method: "GET",
+			headers: { "Content-Type": "text/plain" },
 		})
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`)
-		}
+		await sanitizeResponse(response)
 
-		const data = await response.json()
+		const data = await response.text()
 		return {
 			status: "success",
-			data: {
-				copied: data.count || 15,
-				pattern,
-				template,
-				results: data.results || ["(result value1)", "(result value2)", "(result value3)"],
-			},
-			message: `Copied ${data.count || 15} items`,
+			data: data,
+			message: `Data copied from ${srcExpr} to ${dstExpr} successfully`,
 		}
 	} catch (error) {
 		return {

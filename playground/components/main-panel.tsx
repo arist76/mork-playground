@@ -25,7 +25,7 @@ export function MainPanel({ selectedCommand }: MainPanelProps) {
 			case "clear":
 				return <ClearCommand />
 			case "copy":
-				return <CopyCommand isUnderConstruction={true} />
+				return <CopyCommand />
 			case "count":
 				return <CountCommand isUnderConstruction={true} />
 			case "export":
@@ -55,5 +55,5 @@ export function MainPanel({ selectedCommand }: MainPanelProps) {
 		}
 	}
 
-	return <div className="p-6 w-full">{renderCommand()}</div>
+	return <div className="p-6 w-full min-h-[50%]">{renderCommand()}</div>
 }
